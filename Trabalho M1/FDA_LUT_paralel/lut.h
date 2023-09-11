@@ -1,0 +1,1 @@
+void crialut(float ht, float lambda, float lut[]);
