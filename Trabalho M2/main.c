@@ -265,10 +265,6 @@ int main(int argc, char *argv[]) {
     pthread_create(&tcinto, &default_attr, thread_cinto, NULL);
     pthread_create(&tltv, &default_attr, thread_ltv, NULL);
 
-<<<<<<< HEAD
-=======
-
->>>>>>> e9e5a44 (arrumado erro da tranca)
 
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt);
