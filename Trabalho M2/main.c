@@ -71,8 +71,9 @@ void *thread_cinto(void *arg) {
 }
 void *thread_ltv(void *arg) {
     while (1) {
-        clock_gettime(CLOCK_MONOTONIC, &LVT_CLOCK_START);
         usleep(11);
+        clock_gettime(CLOCK_MONOTONIC, &LVT_CLOCK_START);
+        
         if (LUZ == 1) {
             usleep(1);
             usleep(15);
@@ -87,7 +88,6 @@ void *thread_ltv(void *arg) {
             clock_gettime(CLOCK_MONOTONIC, &VIDRO_CLOCK_END);
         }
         
-
         if (TRNCA == 1) {
             
             usleep(1);
@@ -265,7 +265,10 @@ int main(int argc, char *argv[]) {
     pthread_create(&tcinto, &default_attr, thread_cinto, NULL);
     pthread_create(&tltv, &default_attr, thread_ltv, NULL);
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> e9e5a44 (arrumado erro da tranca)
 
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt);
