@@ -266,7 +266,6 @@ int main(int argc, char *argv[]) {
     pthread_create(&tltv, &default_attr, thread_ltv, NULL);
 
 
-
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
