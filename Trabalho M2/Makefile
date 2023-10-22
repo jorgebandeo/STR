@@ -1,4 +1,4 @@
 build:
-	gcc main.c -o bin/main
+	gcc main.c csv/csv.c -o bin/main
 run:
 	./bin/main
