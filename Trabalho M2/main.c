@@ -1,4 +1,5 @@
 #include <pthread.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
 #include <time.h>
@@ -174,90 +175,68 @@ void *thread_temperature(void *arg)
 }
 
 void *display(void *arg)
-{
-    long max_inj = 0, max_temp = 0, max_abs = 0, max_airbag = 0, max_cinto = 0, max_luz = 0, max_vidro = 0, max_tranca = 0;
-    for (int i = 0; i < 100; i++)
+{   long  soma_inj = 0, soma_temp = 0, soma_abs = 0, soma_airbag = 0, soma_cinto = 0, soma_luz = 0, soma_vidro = 0, soma_tranca = 0;
+    long num = 0;
+    while (1)
     {
+        
         usleep(50 * 1000);
         // pthread_cond_wait(&cond_display, &mutex_motor);
-
+        num = 1 + num;
         // Calcula o tempo de resposta em microssegundos para ACCELERATE e TEMPERATURE
         // tranca
         long tranca_response_time_us =
             (TRANCA_CLOCK_END.tv_nsec - LVT_CLOCK_START.tv_nsec);
-        if (tranca_response_time_us > max_tranca)
-        {
-            max_tranca = tranca_response_time_us;
-        }
+        soma_tranca = soma_tranca + abs(tranca_response_time_us);
+        
         // vidro
         long vidro_response_time_us =
             (VIDRO_CLOCK_END.tv_nsec - LVT_CLOCK_START.tv_nsec);
-        if (vidro_response_time_us > max_vidro)
-        {
-            max_vidro = vidro_response_time_us;
-        }
+        soma_vidro = soma_vidro + abs(vidro_response_time_us);
+        
         // LUZ frontal
         long luz_response_time_us =
             (LUZ_CLOCK_END.tv_nsec - LVT_CLOCK_START.tv_nsec);
-        if (luz_response_time_us > max_luz)
-        {
-            max_luz = luz_response_time_us;
-        }
+        soma_luz = soma_luz + abs(luz_response_time_us);
+        
         // Cinto de seguranca
         long cinto_response_time_us =
             (CINTO_CLOCK_END.tv_nsec - CINTO_CLOCK_START.tv_nsec);
-        if (cinto_response_time_us > max_cinto)
-        {
-            max_cinto = cinto_response_time_us;
-        }
+        soma_cinto = soma_cinto + abs(cinto_response_time_us);
+
         // batida - arbeag
         long airbag_response_time_us =
             (AIRBAG_CLOCK_END.tv_nsec - AIRBAG_CLOCK_START.tv_nsec);
-        if (airbag_response_time_us > max_airbag)
-        {
-            max_airbag = airbag_response_time_us;
-        }
+        soma_airbag = soma_airbag + abs(airbag_response_time_us);
+
         // ABS - Freio
         long abs_response_time_us =
             (ABS_CLOCK_END.tv_nsec - ABS_CLOCK_START.tv_nsec);
-        if (abs_response_time_us > max_abs)
-        {
-            max_abs = abs_response_time_us;
-        }
+        soma_abs = soma_abs + abs(abs_response_time_us);
+
 
         long accelerate_response_time_us =
             (ACCELERATE_CLOCK_END.tv_nsec - clock_accelerate_start.tv_nsec);
-        if (accelerate_response_time_us > max_inj)
-        {
-            max_inj = accelerate_response_time_us;
-        }
+        soma_inj = soma_inj + abs(accelerate_response_time_us);
+
 
         long temperature_response_time_us =
 
             (ENGINE_TEMPERATURE_CLOCK_END.tv_nsec - clock_temperature_start.tv_nsec);
-        if (temperature_response_time_us > max_temp)
-        {
-            max_temp = temperature_response_time_us;
-        }
+        soma_temp = soma_temp + abs(accelerate_response_time_us);
+
+
         // Limpa a tela e imprime os valores
         printf("\033[H\033[J");
-        printf("Acelerador: %d - Tempo de resposta: %ld us\n", ACCELERATE, max_inj / 1000);
-        printf("Temperatura: %d - Tempo de resposta: %ld us\n", QUENTE, max_temp / 1000);
-        printf("Freio: %d - Tempo de resposta: %ld us\n", FREIO, max_abs / 1000);
-        printf("Bateu: %d - Tempo de resposta: %ld us\n", BATIDA, max_airbag / 1000);
-        printf("Cinto colocado: %d - Tempo de resposta: %ld us\n", CINTO, max_cinto / 1000);
-        printf("Luz: %d - Tempo de resposta: %ld us\n", LUZ, max_luz / 1000);
-        printf("Tranca: %d - Tempo de resposta: %ld us\n", TRNCA, max_tranca / 1000);
-        printf("Vidro: %d - Tempo de resposta: %ld us\n", VIDROS, max_vidro / 1000);
+        printf("Acelerador: %d - Tempo de resposta: %ld us\n", ACCELERATE, (soma_inj/num) / 1000);
+        printf("Temperatura: %d - Tempo de resposta: %ld us\n", QUENTE, (soma_temp/num) / 1000);
+        printf("Freio: %d - Tempo de resposta: %ld us\n", FREIO, (soma_abs/num) / 1000);
+        printf("Bateu: %d - Tempo de resposta: %ld us\n", BATIDA, (soma_airbag/num) / 1000);
+        printf("Cinto colocado: %d - Tempo de resposta: %ld us\n", CINTO, (soma_cinto/num)/ 1000);
+        printf("Luz: %d - Tempo de resposta: %ld us\n", LUZ, (soma_luz/num) / 1000);
+        printf("Tranca: %d - Tempo de resposta: %ld us\n", TRNCA, (soma_tranca/num) / 1000);
+        printf("Vidro: %d - Tempo de resposta: %ld us\n", VIDROS, (soma_vidro/num) / 1000);
 
-        write_to_csv("tranca", abs(tranca_response_time_us)/1000);
-        write_to_csv("vidro", abs(vidro_response_time_us)/1000);
-        write_to_csv("luz", abs(luz_response_time_us)/1000);
-        write_to_csv("airbag", abs(airbag_response_time_us)/1000);
-        write_to_csv("abs", abs(abs_response_time_us)/1000);
-        write_to_csv("aceleracao", abs(accelerate_response_time_us)/1000);
-        write_to_csv("temperatura", abs(temperature_response_time_us)/1000);
-        write_to_csv("cinto", abs(cinto_response_time_us)/1000);
     }
     return NULL;
 }
@@ -268,14 +247,14 @@ int main(int argc, char *argv[])
     struct sched_param main_param;
     main_param.sched_priority = 99; // Prioridade máxima
     pthread_attr_setschedparam(&main_attr, &main_param);
-    pthread_setschedparam(pthread_self(), SCHED_FIFO, &main_param);
+    pthread_setschedparam(pthread_self(), SCHED_RR, &main_param);
 
     pthread_t t1, t2, tdisplay, tabs, tairbag, tcinto, tltv;
 
     pthread_attr_t motor_attr;
     pthread_attr_init(&motor_attr);
     struct sched_param motor_param;
-    motor_param.sched_priority = 70; // Prioridade de funcao
+    motor_param.sched_priority = 98; // Prioridade de funcao
     pthread_attr_setschedparam(&motor_attr, &motor_param);
 
     pthread_create(&t1, &motor_attr, thread_motor, NULL);
@@ -283,7 +262,7 @@ int main(int argc, char *argv[])
     pthread_attr_t default_top;
     pthread_attr_init(&default_top);
     struct sched_param top_param;
-    top_param.sched_priority = 50; // Prioridade risco
+    top_param.sched_priority = 87; // Prioridade risco
     pthread_attr_setschedparam(&default_top, &top_param);
 
     pthread_create(&t2, &default_top, thread_temperature, NULL);
@@ -293,7 +272,7 @@ int main(int argc, char *argv[])
     pthread_attr_t default_attr;
     pthread_attr_init(&default_attr);
     struct sched_param default_param;
-    default_param.sched_priority = 1; // Prioridade padrão
+    default_param.sched_priority = 86; // Prioridade padrão
     pthread_attr_setschedparam(&default_attr, &default_param);
 
     pthread_create(&tdisplay, &default_attr, display, NULL);
