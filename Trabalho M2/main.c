@@ -1,3 +1,32 @@
+
+/*
+ * Sistema de Controle de Carro
+ * 
+ * Este programa simula um sistema de controle para um carro inteligente. Ele monitora e controla
+ * diferentes componentes do carro, como acelerador, freio (ABS), temperatura do motor, airbag,
+ * cinto de segurança, luzes, vidros elétricos e tranca das portas.
+ * 
+ * Teclas de Controle:
+ *   - 'a': Ativa/Desativa o Acelerador
+ *   - 't': Alterna a Temperatura do Motor entre Normal e Quente
+ *   - 'f': Ativa/Desativa o Freio (ABS)
+ *   - 'b': Ativa/Desativa o Airbag após uma Batida
+ *   - 'c': Coloca/Retira o Cinto de Segurança
+ *   - 'j': Abre/Fecha os Vidros Elétricos
+ *   - 'g': Trava/Debtrava as Portas do Carro
+ *   - 'l': Liga/Desliga as Luzes do Carro
+ *   - 'q': Encerra o Programa
+ * 
+ * Implementado por: Felipe Hoffmeister Pereira
+ *                     Felipe Ribeiro Machado
+ *                         Jorge Bandeo
+ * Data: 18/10/2023
+ * 
+ * Observações:
+ *   - O programa utiliza threads para monitorar e controlar diferentes componentes do carro.
+ *   - As informações sobre o tempo de resposta dos componentes são exibidas na tela.
+ *   - As teclas mencionadas acima permitem interação com o sistema.
+ */
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,30 +45,32 @@ pthread_mutex_t mutex_motor = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mutex_temperature = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond_display = PTHREAD_COND_INITIALIZER;
 // Injecao do motor
-int ACCELERATE = 1;
+int ACCELERATE = 0;
 // ABS
-int FREIO = 1;
+int FREIO = 0;
 // Temperatura do motor
-int TEMPERATURE = 10;
+int TEMPERATURE = 50;
 int QUENTE = 0;
 // Equipamentos de suporte a vida
-int BATIDA = 1; // airbag
-int CINTO = 1;  // cinto
+int BATIDA = 0; // airbag
+int CINTO = 0;  // cinto
 // LVT
-int VIDROS = 1;
-int LUZ = 1;
-int TRNCA = 1;
+int VIDROS = 0;
+int LUZ = 0;
+int TRNCA = 0;
 
 struct timespec ACCELERATE_CLOCK_END, ENGINE_TEMPERATURE_CLOCK_END,
     clock_accelerate_start, clock_temperature_start,
-    ABS_CLOCK_END, ABS_CLOCK_START,     // ABS
-    AIRBAG_CLOCK_END, AIRBAG_CLOCK_START, // airbag
-    CINTO_CLOCK_END, CINTO_CLOCK_START, // cinto
-    LVT_CLOCK_START,                    // tranca, luz, vidro
-    TRANCA_CLOCK_END,                   // tranca do carro
-    LUZ_CLOCK_END,                      // Luz dianteira
-    VIDRO_CLOCK_END                     // vidro, luz, tranca
+    ABS_CLOCK_END, ABS_CLOCK_START,         // ABS
+    AIRBAG_CLOCK_END, AIRBAG_CLOCK_START,   // airbag
+    CINTO_CLOCK_END, CINTO_CLOCK_START,     // cinto
+    LVT_CLOCK_START,                        // tranca, luz, vidro
+    TRANCA_CLOCK_END,                       // tranca do carro
+    LUZ_CLOCK_END,                          // Luz dianteira
+    VIDRO_CLOCK_END                         // vidro
     ;
+
+// Threads para monitorar o estado dos componentes
 void *thread_airbag(void *arg)
 {
     while (1)
@@ -47,7 +78,6 @@ void *thread_airbag(void *arg)
         usleep(11);
         if (BATIDA == 1)
         {
-
             clock_gettime(CLOCK_MONOTONIC, &AIRBAG_CLOCK_START);
             usleep(1);
             usleep(15);
@@ -65,7 +95,6 @@ void *thread_cinto(void *arg)
         usleep(11);
         if (CINTO == 1)
         {
-
             clock_gettime(CLOCK_MONOTONIC, &CINTO_CLOCK_START);
             usleep(1);
             usleep(15);
@@ -87,15 +116,17 @@ void *thread_ltv(void *arg)
         {
             usleep(1);
             usleep(15);
+            
             clock_gettime(CLOCK_MONOTONIC, &LUZ_CLOCK_END);
         }
-
-        if (VIDROS)
+        
+        if (VIDROS== 1)
         {
 
             usleep(1);
             usleep(15);
             clock_gettime(CLOCK_MONOTONIC, &VIDRO_CLOCK_END);
+           
         }
 
         if (TRNCA == 1)
@@ -104,6 +135,7 @@ void *thread_ltv(void *arg)
             usleep(1);
             usleep(15);
             clock_gettime(CLOCK_MONOTONIC, &TRANCA_CLOCK_END);
+            
         }
 
         pthread_cond_signal(&cond_display);
@@ -173,69 +205,81 @@ void *thread_temperature(void *arg)
     }
     return NULL;
 }
-
+// Thread para exibir o estado dos componentes na tela
 void *display(void *arg)
 {   long  soma_inj = 0, soma_temp = 0, soma_abs = 0, soma_airbag = 0, soma_cinto = 0, soma_luz = 0, soma_vidro = 0, soma_tranca = 0;
-    long num = 0;
+
     while (1)
     {
         
         usleep(50 * 1000);
-        // pthread_cond_wait(&cond_display, &mutex_motor);
-        num = 1 + num;
         // Calcula o tempo de resposta em microssegundos para ACCELERATE e TEMPERATURE
         // tranca
         long tranca_response_time_us =
             (TRANCA_CLOCK_END.tv_nsec - LVT_CLOCK_START.tv_nsec);
-        soma_tranca = soma_tranca + abs(tranca_response_time_us);
+            if (TRNCA){
+                soma_tranca =  abs(tranca_response_time_us);
+            }else{
+
+                soma_abs = soma_abs;
+            }
+        
         
         // vidro
         long vidro_response_time_us =
             (VIDRO_CLOCK_END.tv_nsec - LVT_CLOCK_START.tv_nsec);
-        soma_vidro = soma_vidro + abs(vidro_response_time_us);
+        if (VIDROS){
+            soma_vidro = abs(vidro_response_time_us);
+        }else{
+            soma_vidro = soma_vidro;
+        }
         
         // LUZ frontal
         long luz_response_time_us =
             (LUZ_CLOCK_END.tv_nsec - LVT_CLOCK_START.tv_nsec);
-        soma_luz = soma_luz + abs(luz_response_time_us);
+        if (LUZ){
+            soma_luz =  abs(luz_response_time_us);
+        }else{
+            soma_luz = soma_luz;
+        }
         
         // Cinto de seguranca
         long cinto_response_time_us =
             (CINTO_CLOCK_END.tv_nsec - CINTO_CLOCK_START.tv_nsec);
-        soma_cinto = soma_cinto + abs(cinto_response_time_us);
+        soma_cinto =  abs(cinto_response_time_us);
 
         // batida - arbeag
         long airbag_response_time_us =
             (AIRBAG_CLOCK_END.tv_nsec - AIRBAG_CLOCK_START.tv_nsec);
-        soma_airbag = soma_airbag + abs(airbag_response_time_us);
+        soma_airbag =  abs(airbag_response_time_us);
 
         // ABS - Freio
         long abs_response_time_us =
             (ABS_CLOCK_END.tv_nsec - ABS_CLOCK_START.tv_nsec);
-        soma_abs = soma_abs + abs(abs_response_time_us);
+        soma_abs =  abs(abs_response_time_us);
 
-
+        // Injecao motor
         long accelerate_response_time_us =
             (ACCELERATE_CLOCK_END.tv_nsec - clock_accelerate_start.tv_nsec);
-        soma_inj = soma_inj + abs(accelerate_response_time_us);
+        soma_inj =  abs(accelerate_response_time_us);
 
-
+        // Temperatura motor 
         long temperature_response_time_us =
 
             (ENGINE_TEMPERATURE_CLOCK_END.tv_nsec - clock_temperature_start.tv_nsec);
-        soma_temp = soma_temp + abs(accelerate_response_time_us);
+        soma_temp =  abs(temperature_response_time_us);
 
 
         // Limpa a tela e imprime os valores
         printf("\033[H\033[J");
-        printf("Acelerador: %d - Tempo de resposta: %ld us\n", ACCELERATE, (soma_inj/num) / 1000);
-        printf("Temperatura: %d - Tempo de resposta: %ld us\n", QUENTE, (soma_temp/num) / 1000);
-        printf("Freio: %d - Tempo de resposta: %ld us\n", FREIO, (soma_abs/num) / 1000);
-        printf("Bateu: %d - Tempo de resposta: %ld us\n", BATIDA, (soma_airbag/num) / 1000);
-        printf("Cinto colocado: %d - Tempo de resposta: %ld us\n", CINTO, (soma_cinto/num)/ 1000);
-        printf("Luz: %d - Tempo de resposta: %ld us\n", LUZ, (soma_luz/num) / 1000);
-        printf("Tranca: %d - Tempo de resposta: %ld us\n", TRNCA, (soma_tranca/num) / 1000);
-        printf("Vidro: %d - Tempo de resposta: %ld us\n", VIDROS, (soma_vidro/num) / 1000);
+        printf("Acelerador: %d - Tempo de resposta: %ld us\n", ACCELERATE, (soma_inj) / 1000);
+        printf("Temperatura: %d - Tempo de resposta: %ld us\n", QUENTE, (soma_temp) / 1000);
+        printf("Freio: %d - Tempo de resposta: %ld us\n", FREIO, (soma_abs) / 1000);
+        printf("Bateu: %d - Tempo de resposta: %ld us\n", BATIDA, (soma_airbag) / 1000);
+        printf("Cinto colocado: %d - Tempo de resposta: %ld us\n", CINTO, (soma_cinto)/ 1000);
+        printf("Luz: %d - Tempo de resposta: %ld us\n", LUZ, (soma_luz) / 1000);
+        printf("Tranca: %d - Tempo de resposta: %ld us\n", TRNCA, (soma_tranca) / 1000);
+        printf("Vidro: %d - Tempo de resposta: %ld us\n", VIDROS, (soma_vidro) / 1000);
 
     }
     return NULL;
@@ -247,7 +291,7 @@ int main(int argc, char *argv[])
     struct sched_param main_param;
     main_param.sched_priority = 99; // Prioridade máxima
     pthread_attr_setschedparam(&main_attr, &main_param);
-    pthread_setschedparam(pthread_self(), SCHED_RR, &main_param);
+    pthread_setschedparam(pthread_self(), SCHED_RR, &main_param); //difine escalonador
 
     pthread_t t1, t2, tdisplay, tabs, tairbag, tcinto, tltv;
 
@@ -285,6 +329,7 @@ int main(int argc, char *argv[])
     newt.c_lflag &= ~(ICANON | ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
     char line = ' ';
+    // sinal que emula os sensores 
     while (line != 'q')
     {
         line = getchar();
@@ -305,8 +350,6 @@ int main(int argc, char *argv[])
             {
                 TEMPERATURE = 100;
             }
-            // Sinaliza a thread de temperatura para verificar imediatamente
-            pthread_cond_signal(&cond_display);
             pthread_mutex_unlock(&mutex_temperature);
         }
         else if (line == 'f')
@@ -348,8 +391,5 @@ int main(int argc, char *argv[])
     }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    pthread_cancel(t1);
-    pthread_cancel(t2);
-    pthread_cancel(tdisplay);
     return 0;
 }
