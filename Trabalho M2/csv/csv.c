@@ -6,7 +6,7 @@ void write_to_csv(char function_name[], double data)
 {
   FILE *file;
 
-  char full_path[100] = "csv/";
+  char full_path[100] = "csv/results/";
   strcat(full_path, function_name);
   strcat(full_path, ".csv");
 
