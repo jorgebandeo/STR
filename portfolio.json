@@ -1,0 +1,12 @@
+{
+  "$schema": "https://jorgebandeo.github.io/Portfolio/schema/project-v1.schema.json",
+  "schemaVersion": 1,
+  "project": {"id":"sistemas-tempo-real","name":"Sistemas em Tempo Real","subtitle":"Trabalhos acadêmicos de sistemas temporizados","status":"academic"},
+  "categories":["software","embedded"],
+  "technologies":["Sistemas em Tempo Real","C","Concorrência"],
+  "summary":"Conjunto de trabalhos acadêmicos da disciplina de Sistemas em Tempo Real, reunindo implementações e exercícios relacionados a execução concorrente e restrições temporais.",
+  "highlights":["Sistemas em tempo real","Concorrência","Atividades acadêmicas"],
+  "media":{"gallery":[]},
+  "links":{"repository":"https://github.com/jorgebandeo/STR"},
+  "portfolio":{"visible":true,"featured":false,"order":140}
+}
