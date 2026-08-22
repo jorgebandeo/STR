@@ -1,12 +1,10 @@
 {
-  "$schema": "https://jorgebandeo.github.io/Portfolio/schema/project-v1.schema.json",
-  "schemaVersion": 1,
-  "project": {"id":"sistemas-tempo-real","name":"Sistemas em Tempo Real","subtitle":"Trabalhos acadêmicos de sistemas temporizados","status":"academic"},
-  "categories":["software","embedded"],
-  "technologies":["Sistemas em Tempo Real","C","Concorrência"],
-  "summary":"Conjunto de trabalhos acadêmicos da disciplina de Sistemas em Tempo Real, reunindo implementações e exercícios relacionados a execução concorrente e restrições temporais.",
-  "highlights":["Sistemas em tempo real","Concorrência","Atividades acadêmicas"],
-  "media":{"gallery":[]},
-  "links":{"repository":"https://github.com/jorgebandeo/STR"},
-  "portfolio":{"visible":true,"featured":false,"order":140}
+  "$schema":"https://jorgebandeo.github.io/Portfolio/schema/project-v1.schema.json","schemaVersion":1,
+  "project":{"id":"sistemas-tempo-real","name":"Sistemas em Tempo Real e Processamento Paralelo","subtitle":"Otimização de processamento de imagens em C/C++ com LUT e paralelismo por threads","status":"academic"},
+  "categories":["software","embedded","research"],"technologies":["C","C++","Threads","Paralelismo","LUT","Processamento de Imagens","PGM"],
+  "summary":"Projeto acadêmico de Sistemas em Tempo Real centrado na análise e otimização de uma rotina de processamento bidimensional de imagens. O repositório mantém versões de referência e versões otimizadas do algoritmo, incluindo implementação com lookup table (LUT) e execução paralela por threads, permitindo estudar como escolhas de implementação afetam tempo de execução e previsibilidade computacional.",
+  "development":[{"title":"Baseline sequencial","text":"Versão original em C preserva o algoritmo de processamento 2D e fornece referência para comparação das otimizações."},{"title":"Lookup table","text":"Uma variante substitui cálculos repetitivos por uma LUT, estratégia clássica de troca de memória por desempenho em sistemas com restrições temporais."},{"title":"Paralelização","text":"Versões adicionais exploram execução concorrente e divisão do processamento utilizando threads, incluindo uma implementação paralela da solução baseada em LUT."}],
+  "highlights":["Comparação entre implementação original e otimizada","Lookup table para redução de custo computacional","Processamento paralelo com threads","Processamento de imagem PGM","Estudo de desempenho aplicado a sistemas temporizados"],
+  "caseStudy":{"title":"Otimização de carga computacional sob restrições temporais","intro":"Em sistemas de tempo real, produzir a resposta correta não é suficiente: o tempo necessário para produzi-la também integra os requisitos do sistema. Este trabalho utiliza processamento de imagens como carga computacional para explorar esse princípio.","objective":"Investigar estratégias de redução do tempo de processamento de um algoritmo bidimensional, comparando uma implementação convencional com otimizações por pré-cálculo e paralelismo.","implementation":"O código foi mantido em diferentes variantes: implementação original, implementação baseada em lookup table e versões paralelas. Os módulos também incluem leitura e escrita de imagens PGM e uma imagem de teste com ruído, permitindo executar o mesmo problema sobre abordagens distintas.","architecture":"Imagem PGM → carregamento da matriz → processamento 2D → variante original/LUT/paralela → geração e avaliação da saída.","progress":"O repositório contém executáveis e fontes de múltiplas versões do trabalho, incluindo FDA_Original_C_unsigned, FDA_LUT, FDA_LUT_paralel e experimento específico com threads.","materials":["C e C++","Bibliotecas de threads","Imagens PGM","Implementação de lookup table","Rotinas próprias de leitura e processamento matricial"],"results":["Construção de baseline para comparação","Aplicação de pré-computação por LUT","Implementação de processamento concorrente","Estrutura experimental adequada à análise de tempo de execução"]},
+  "media":{"gallery":[]},"links":{"repository":"https://github.com/jorgebandeo/STR"},"portfolio":{"visible":true,"featured":true,"order":65}
 }
